@@ -11,6 +11,7 @@ import { registerAuthMiddleware } from './plugins/auth-middleware.js';
 import { authModule } from './modules/auth/index.js';
 import { meModule } from './modules/me/index.js';
 import { waitlistModule } from './modules/waitlist/index.js';
+import { uploadsModule } from './modules/uploads/index.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
   const fastifyOpts = {
@@ -55,6 +56,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await server.register(authModule, { prefix: '/v1/auth' });
   await server.register(meModule, { prefix: '/v1/me' });
   await server.register(waitlistModule, { prefix: '/v1/waitlist' });
+  await server.register(uploadsModule, { prefix: '/v1/uploads' });
 
   return server;
 }

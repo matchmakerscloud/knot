@@ -57,6 +57,7 @@ services:
       /bin/sh -c "
       mc alias set local http://minio:9000 minioadmin minioadmin;
       mc mb -p local/knot-dev || true;
+      mc mb -p local/knot-test || true;
       mc anonymous set download local/knot-dev || true;
       "
 

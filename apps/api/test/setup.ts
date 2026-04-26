@@ -12,6 +12,7 @@ process.env.S3_REGION ??= 'us-east-1';
 process.env.S3_BUCKET ??= 'knot-test';
 process.env.S3_ACCESS_KEY_ID ??= 'minioadmin';
 process.env.S3_SECRET_ACCESS_KEY ??= 'minioadmin';
+process.env.S3_FORCE_PATH_STYLE ??= 'true';
 process.env.REDIS_URL ??= 'redis://localhost:6379';
 process.env.MAIL_BACKEND ??= 'console';
 process.env.PUBLIC_URL ??= 'http://localhost:3001';
