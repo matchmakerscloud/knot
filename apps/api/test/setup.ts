@@ -27,7 +27,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await sql`TRUNCATE auth_sessions, users, waitlist_signups RESTART IDENTITY CASCADE`;
+  await sql`TRUNCATE voice_recordings, voice_prompts, auth_sessions, users, waitlist_signups RESTART IDENTITY CASCADE`;
 });
 
 afterAll(async () => {
