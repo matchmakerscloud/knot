@@ -25,6 +25,22 @@ const envSchema = z.object({
   PASSWORD_PEPPER: z.string().min(16),
   ENCRYPTION_KEY: z.string().min(32),
 
+  // --- LLM (Knot the agent + dossiers + moderation) ---
+  // Primary: Google Gemini. Alt: any OpenAI-compatible provider (OpenAI, Groq, Together, OpenRouter, Ollama, vLLM, ...).
+  LLM_PROVIDER: z.enum(['gemini', 'openai-compat']).default('gemini'),
+  GEMINI_API_KEY: z.string().optional(),
+  GEMINI_MODEL: z.string().default('gemini-2.0-flash-exp'),
+  LLM_OPENAI_BASE_URL: z.string().url().default('https://api.openai.com/v1'),
+  LLM_OPENAI_API_KEY: z.string().optional(),
+  LLM_OPENAI_MODEL: z.string().default('gpt-4o-mini'),
+
+  // Embeddings — kept separate because dimensions are baked into the DB schema.
+  // For now we use OpenAI-compat with text-embedding-3-small (1536) to match words_responses.embedding(1536).
+  // (Future migration to Gemini text-embedding-004 (768) will require schema changes.)
+  EMBEDDINGS_PROVIDER: z.enum(['openai-compat', 'gemini']).default('openai-compat'),
+  EMBEDDINGS_MODEL: z.string().default('text-embedding-3-small'),
+
+  // --- Legacy keys (still read but no longer required) ---
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default('claude-opus-4-7'),
   OPENAI_API_KEY: z.string().optional(),
@@ -41,6 +57,10 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+
+  // Local microservices
+  WHISPER_URL: z.string().url().default('http://127.0.0.1:5050'),
+  VOICE_FINGERPRINT_URL: z.string().url().default('http://127.0.0.1:5000'),
 
   ALLOWED_ORIGINS: z.string().default(
     'http://localhost:3000,http://localhost:3001,https://app.matchmakers.cloud,https://app.matchmaking.cloud,https://matchmakers.cloud,https://matchmaking.cloud,https://voice.matchmakers.cloud,https://words.matchmakers.cloud',
@@ -73,6 +93,26 @@ export const config = {
     passwordPepper: env.PASSWORD_PEPPER,
   },
   encryptionKey: env.ENCRYPTION_KEY,
+  microservices: {
+    whisperUrl: env.WHISPER_URL,
+    voiceFingerprintUrl: env.VOICE_FINGERPRINT_URL,
+  },
+  llm: {
+    provider: env.LLM_PROVIDER,
+    gemini: {
+      apiKey: env.GEMINI_API_KEY,
+      model: env.GEMINI_MODEL,
+    },
+    openaiCompat: {
+      baseUrl: env.LLM_OPENAI_BASE_URL,
+      apiKey: env.LLM_OPENAI_API_KEY,
+      model: env.LLM_OPENAI_MODEL,
+    },
+    embeddings: {
+      provider: env.EMBEDDINGS_PROVIDER,
+      model: env.EMBEDDINGS_MODEL,
+    },
+  },
   anthropic: {
     apiKey: env.ANTHROPIC_API_KEY,
     model: env.ANTHROPIC_MODEL,

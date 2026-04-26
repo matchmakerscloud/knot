@@ -27,6 +27,7 @@
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/sensible": "^6.0.4",
     "@fastify/websocket": "^11.2.0",
+    "@google/generative-ai": "^0.24.1",
     "@knot/shared-types": "workspace:*",
     "argon2": "^0.40.3",
     "bullmq": "^5.10.0",
