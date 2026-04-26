@@ -13,6 +13,7 @@ import { meModule } from './modules/me/index.js';
 import { waitlistModule } from './modules/waitlist/index.js';
 import { uploadsModule } from './modules/uploads/index.js';
 import { voiceModule } from './modules/voice/index.js';
+import { chambersModule } from './modules/chambers/index.js';
 import { adminModule } from './modules/admin/index.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
@@ -60,6 +61,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await server.register(waitlistModule, { prefix: '/v1/waitlist' });
   await server.register(uploadsModule, { prefix: '/v1/uploads' });
   await server.register(voiceModule, { prefix: '/v1/voice' });
+  await server.register(chambersModule, { prefix: '/v1/chambers' });
   await server.register(adminModule, { prefix: '/v1/admin' });
 
   return server;

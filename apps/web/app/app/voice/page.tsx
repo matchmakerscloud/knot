@@ -68,10 +68,24 @@ export default function VoiceHome() {
               </Link>
             ) : (
               <p className="mt-4 font-sans text-sm text-success">
-                Perfil completo. Knot pronto te empezará a presentar audios de otras personas.
+                Perfil completo.
               </p>
             )}
           </div>
+
+          {completed >= TOTAL ? (
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <Link href="/app/voice/feed" className="rounded-2xl border border-accent bg-accent/5 px-3 py-4 text-center font-sans text-sm text-accent hover:bg-accent/10">
+                Escuchar
+              </Link>
+              <Link href={"/app/voice/replies" as never} className="rounded-2xl border border-border bg-card px-3 py-4 text-center font-sans text-sm text-mute hover:border-accent/40 hover:text-ink">
+                Te respondieron
+              </Link>
+              <Link href={"/app/voice/chambers" as never} className="rounded-2xl border border-border bg-card px-3 py-4 text-center font-sans text-sm text-mute hover:border-accent/40 hover:text-ink">
+                Canales
+              </Link>
+            </div>
+          ) : null}
 
           <h3 className="mt-8 mb-3 text-base font-sans text-mute">Mis grabaciones</h3>
           <ul className="space-y-2">

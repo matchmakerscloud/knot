@@ -246,6 +246,77 @@ export async function voiceFeedRoutes(app: FastifyInstance) {
     };
   });
 
+  // POST /v1/voice/replies/:id/respond — respond to a reply that someone sent me.
+  // Backend picks the from-user's most recent active recording as parent, creates
+  // a B→A reply, and (since A→B already exists pending) immediately opens a chamber.
+  app.post<{ Params: { id: string } }>('/replies/:id/respond', { preHandler: app.requireAuth }, async (req, replyHttp) => {
+    const meId = req.auth!.userId;
+    const body = parse(ReplyBody, req.body);
+    const orig = await repliesRepo.findById(req.params.id);
+    if (!orig || orig.toUserId !== meId) {
+      throw new NotFoundError('voice.reply.not_found', 'Reply not found');
+    }
+
+    const [parentRec] = await db
+      .select()
+      .from(voiceRecordings)
+      .where(and(eq(voiceRecordings.userId, orig.fromUserId), eq(voiceRecordings.status, 'active')))
+      .limit(1);
+    if (!parentRec) {
+      throw new ConflictError('voice.reply.target_has_no_recording', 'The other person has no active recording yet');
+    }
+
+    if (!body.storageKey.startsWith(`voice/${meId}/`)) {
+      throw new ValidationError('voice.reply.storage_key_mismatch', 'storageKey does not belong to current user');
+    }
+    if (!(await storage.exists(body.storageKey))) {
+      throw new ValidationError('voice.reply.upload_missing', 'No object found at provided storageKey');
+    }
+
+    const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    const newReply = await repliesRepo.create({
+      fromUserId: meId,
+      toUserId: orig.fromUserId,
+      parentRecordingId: parentRec.id,
+      storageKey: body.storageKey,
+      contentType: body.contentType,
+      durationSeconds: body.durationSeconds.toFixed(2),
+      status: 'replied_back',
+      expiresAt,
+    });
+
+    const [ch] = await db
+      .insert(chambers)
+      .values({ app: 'voice', origin: 'voice_match', originRefId: parentRec.id, status: 'active', lastMessageAt: new Date() })
+      .returning();
+    if (!ch) throw new Error('chamber.create.failed');
+
+    await db.insert(chamberParticipants).values([
+      { chamberId: ch.id, userId: meId },
+      { chamberId: ch.id, userId: orig.fromUserId },
+    ]);
+    await repliesRepo.markRepliedBack(orig.id, ch.id);
+    await repliesRepo.markRepliedBack(newReply.id, ch.id);
+
+    await db.insert(messages).values({
+      chamberId: ch.id, senderId: null, kind: 'system',
+      body: 'Hicieron match. Knot abre este canal — los próximos días son solo de voz.',
+    });
+    await db.insert(messages).values([
+      {
+        chamberId: ch.id, senderId: orig.fromUserId, kind: 'voice',
+        voiceStorageKey: orig.storageKey, voiceContentType: orig.contentType, voiceDurationSeconds: orig.durationSeconds,
+      },
+      {
+        chamberId: ch.id, senderId: meId, kind: 'voice',
+        voiceStorageKey: body.storageKey, voiceContentType: body.contentType, voiceDurationSeconds: body.durationSeconds.toFixed(2),
+      },
+    ]);
+
+    replyHttp.code(201);
+    return { id: newReply.id, status: 'matched', chamberId: ch.id };
+  });
+
   // GET /v1/voice/replies/received — pending replies sent to me
   app.get('/replies/received', { preHandler: app.requireAuth }, async (req) => {
     const userId = req.auth!.userId;
