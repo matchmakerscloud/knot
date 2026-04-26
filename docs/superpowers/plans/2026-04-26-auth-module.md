@@ -1565,3 +1565,23 @@ Plan saved to `docs/superpowers/plans/2026-04-26-auth-module.md`. Two execution 
 **1. Subagent-Driven (recommended)** — Fresh subagent per task, two-stage review between tasks, fast iteration. Use `superpowers:subagent-driven-development`.
 
 **2. Inline Execution** — Execute tasks in this session with checkpoints for human review. Use `superpowers:executing-plans`.
+
+---
+
+## Status: ✅ shipped (2026-04-26)
+
+- 29/29 tests passing locally (vitest, real Postgres in Docker)
+- API live and reachable at `https://api.matchmakers.cloud` via nginx → systemd `knot-api.service` → Fastify on :4000
+- Verified end-to-end via real public DNS:
+  - `GET /health` → 200 `{"status":"ok"}`
+  - `POST /v1/auth/signup` → 201 with full user + tokens
+  - `POST /v1/auth/refresh` → 200 with rotated tokens
+  - `POST /v1/auth/signup` (duplicate email) → 409 `auth.email_in_use`
+  - `POST /v1/auth/login` (wrong pwd) → 401 `auth.invalid_credentials`
+
+### Operational notes
+
+- Service: `sudo systemctl {start,stop,restart,status} knot-api`
+- Logs: `/var/log/knot-api.log`
+- Test DB: `knot_test` on Docker Postgres; truncate-between-tests pattern; `fileParallelism=false` in vitest config to avoid FK collisions across files
+- CI step still TODO (Task 16 in original plan): GitHub Actions services for postgres+redis with migrations before tests
