@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#0e0d12"/>
+  <g transform="translate(256 256)">
+    <circle r="120" fill="none" stroke="#c9b6ff" stroke-width="14"/>
+    <circle r="60" fill="none" stroke="#c9b6ff" stroke-width="14"/>
+    <path d="M-120 0 L120 0" stroke="#c9b6ff" stroke-width="14" stroke-linecap="round" opacity="0.4"/>
+  </g>
+  <text x="50%" y="430" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-style="italic" fill="#f5f3ee">knot</text>
+</svg>
