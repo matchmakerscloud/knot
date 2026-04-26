@@ -13,6 +13,8 @@ process.env.S3_BUCKET ??= 'knot-test';
 process.env.S3_ACCESS_KEY_ID ??= 'minioadmin';
 process.env.S3_SECRET_ACCESS_KEY ??= 'minioadmin';
 process.env.REDIS_URL ??= 'redis://localhost:6379';
+process.env.MAIL_BACKEND ??= 'console';
+process.env.PUBLIC_URL ??= 'http://localhost:3001';
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
 
@@ -24,7 +26,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await sql`TRUNCATE auth_sessions, users RESTART IDENTITY CASCADE`;
+  await sql`TRUNCATE auth_sessions, users, waitlist_signups RESTART IDENTITY CASCADE`;
 });
 
 afterAll(async () => {
