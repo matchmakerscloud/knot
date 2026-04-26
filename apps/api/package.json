@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch --env-file=../../.env src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
@@ -13,8 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx src/shared/db/migrate.ts",
-    "db:seed": "tsx src/shared/db/seed.ts"
+    "db:migrate": "tsx --env-file=../../.env src/shared/db/migrate.ts",
+    "db:seed": "tsx --env-file=../../.env src/shared/db/seed.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
@@ -30,7 +30,7 @@
     "@knot/shared-types": "workspace:*",
     "argon2": "^0.40.3",
     "bullmq": "^5.10.0",
-    "drizzle-orm": "^0.32.0",
+    "drizzle-orm": "^0.45.2",
     "fastify": "^4.28.0",
     "fastify-type-provider-zod": "^2.0.0",
     "ioredis": "^5.4.0",
@@ -45,7 +45,7 @@
     "@types/node": "^20.14.0",
     "@types/supertest": "^6.0.0",
     "@vitest/coverage-v8": "^2.0.0",
-    "drizzle-kit": "^0.23.0",
+    "drizzle-kit": "^0.31.10",
     "supertest": "^7.0.0",
     "tsx": "^4.16.0",
     "typescript": "^5.5.0",

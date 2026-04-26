@@ -1,4 +1,5 @@
 export * from './users.js';
+export * from './auth-sessions.js';
 // Add more schema exports as you build them:
 // export * from './photos.js';
 // export * from './voice-recordings.js';
