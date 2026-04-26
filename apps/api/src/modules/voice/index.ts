@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod';
 import { db } from '../../shared/db/client.js';
 import { getStorage } from '../../shared/storage/index.js';
 import { ConflictError, NotFoundError, ValidationError } from '../../shared/errors.js';
+import { getVoiceQueue } from '../../shared/queue/index.js';
 import { VoicePromptsRepository, VoiceRecordingsRepository } from './repository.js';
 
 const ListPromptsQuery = z.object({
@@ -81,18 +82,30 @@ export async function voiceModule(app: FastifyInstance) {
       promptTextSnapshot: prompt.text,
       storageKey: body.storageKey,
       contentType: body.contentType,
-      // TODO Plan #7: real per-content AES-256-GCM key + KMS-wrapped storage.
       encryptionKeyId: 'plaintext-v0',
       durationSeconds: body.durationSeconds.toFixed(2),
       position: body.position,
       status: 'processing',
     });
 
+    // Enqueue background processing (waveform + voice-fp + transcription + activate)
+    try {
+      await getVoiceQueue().add('process', {
+        recordingId: row.id,
+        userId,
+        storageKey: body.storageKey,
+        contentType: body.contentType,
+      });
+    } catch (err) {
+      req.log.error({ err, recordingId: row.id }, 'voice.enqueue.failed');
+      // Row is created with status=processing; we leave it for retry/manual reconciliation.
+    }
+
     reply.code(202);
     return {
       id: row.id,
       status: row.status,
-      estimatedReadyInSeconds: 5,
+      estimatedReadyInSeconds: 15,
     };
   });
 

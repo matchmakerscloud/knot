@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { config } from '../../config/index.js';
 import { getLLM } from '../../shared/llm/index.js';
 import { whisperHealthy, transcribeAudio } from '../../shared/transcribe/index.js';
+import { voiceFpHealthy, voiceFpEmbed } from '../../shared/voice-fp/index.js';
 import { getStorage } from '../../shared/storage/index.js';
 
 /**
@@ -32,13 +33,10 @@ export async function adminModule(app: FastifyInstance) {
 
   // GET /v1/admin/services/health — pings local microservices
   app.get('/services/health', { preHandler: app.requireAuth }, async () => {
-    const [whisper] = await Promise.all([whisperHealthy()]);
+    const [whisper, voiceFp] = await Promise.all([whisperHealthy(), voiceFpHealthy()]);
     return {
       whisper: { url: config.microservices.whisperUrl, healthy: whisper },
-      voiceFingerprint: {
-        url: config.microservices.voiceFingerprintUrl,
-        healthy: false, // not yet deployed (Plan #6 next)
-      },
+      voiceFingerprint: { url: config.microservices.voiceFingerprintUrl, healthy: voiceFp },
     };
   });
 
