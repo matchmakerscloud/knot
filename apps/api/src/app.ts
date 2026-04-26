@@ -6,17 +6,20 @@ import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
 import { config } from './config/index.js';
+import { registerErrorHandler } from './plugins/error-handler.js';
+import { authModule } from './modules/auth/index.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
-  const server = Fastify({
+  const fastifyOpts = {
     logger: {
       level: config.logLevel,
-      transport: config.nodeEnv === 'development'
-        ? { target: 'pino-pretty' }
-        : undefined,
+      ...(config.nodeEnv === 'development'
+        ? { transport: { target: 'pino-pretty' } }
+        : {}),
     },
     trustProxy: true,
-  });
+  };
+  const server: FastifyInstance = Fastify(fastifyOpts);
 
   await server.register(helmet);
   await server.register(cors, {
@@ -33,14 +36,11 @@ export async function buildServer(): Promise<FastifyInstance> {
   });
   await server.register(websocket);
 
+  registerErrorHandler(server);
+
   server.get('/health', async () => ({ status: 'ok' }));
 
-  // TODO: register module routes here
-  // await server.register(authRoutes, { prefix: '/v1/auth' });
-  // await server.register(usersRoutes, { prefix: '/v1/users' });
-  // await server.register(voiceRoutes, { prefix: '/v1/voice' });
-  // await server.register(wordsRoutes, { prefix: '/v1/words' });
-  // await server.register(matchRoutes, { prefix: '/v1/match' });
+  await server.register(authModule, { prefix: '/v1/auth' });
 
   return server;
 }

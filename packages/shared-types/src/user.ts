@@ -64,3 +64,18 @@ export const AuthResponseSchema = z.object({
   expiresIn: z.number(),
 });
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+
+export const RefreshRequestSchema = z.object({
+  refreshToken: z.string().min(32),
+});
+export type RefreshRequest = z.infer<typeof RefreshRequestSchema>;
+
+export const RefreshResponseSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  expiresIn: z.number(),
+});
+export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;
+
+export const LogoutResponseSchema = z.object({ ok: z.literal(true) });
+export type LogoutResponse = z.infer<typeof LogoutResponseSchema>;
