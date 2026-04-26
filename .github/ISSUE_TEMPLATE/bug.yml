@@ -1,0 +1,45 @@
+name: Bug report
+description: Something doesn't work as expected
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Knot is a community project — every reproducible bug helps.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Plain language; we'll dig.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Where (browser, device, app)
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues and didn't find a duplicate
+          required: true
+        - label: I followed the Code of Conduct
+          required: true

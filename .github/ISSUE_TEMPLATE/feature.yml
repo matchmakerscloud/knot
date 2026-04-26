@@ -1,0 +1,33 @@
+name: Feature request
+description: New capability or product idea
+title: "[feature] "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: A user need, not a solution. Sentiment matters.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Sketch of a solution
+      description: Optional. Diagrams, references, examples.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app does this affect?
+      options:
+        - All
+        - Knot Voice
+        - Knot Words
+        - Knot Match
+        - Infrastructure
+    validations:
+      required: true
