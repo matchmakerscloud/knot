@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Env
+.env
+.env.*.local
+.env.local
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Cache
+.turbo/
+.cache/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Mobile
+.expo/
+ios/Pods/
+ios/build/
+android/build/
+android/app/build/
+android/.gradle/
+*.keystore
+!debug.keystore
+
+# Testing
+test-results/
+playwright-report/
+
+# Misc
+*.local

@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #fafafa;
+  --color-fg: #111111;
+  --color-muted: #6b6b6b;
+  --color-border: #ececec;
+  --color-card: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0d0d0d;
+    --color-fg: #f5f5f5;
+    --color-muted: #9a9a9a;
+    --color-border: #262626;
+    --color-card: #161616;
+  }
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+        env:
+          DATABASE_URL: postgres://test:test@localhost:5432/test
+          REDIS_URL: redis://localhost:6379
+          JWT_ACCESS_SECRET: test_test_test_test_test_test_test_test_test_test_test_test
+          JWT_REFRESH_SECRET: test_test_test_test_test_test_test_test_test_test_test_test
+          PASSWORD_PEPPER: test_test_test_test_test_test_test
+          ENCRYPTION_KEY: test_test_test_test_test_test_test
+          S3_ENDPOINT: http://localhost:9000
+          S3_REGION: us-east-1
+          S3_BUCKET: test
+          S3_ACCESS_KEY_ID: test
+          S3_SECRET_ACCESS_KEY: test

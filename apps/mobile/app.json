@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Knot",
+    "slug": "knot",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "knot",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.knot.ios",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Knot necesita acceso al micrófono para grabar tus respuestas de voz.",
+        "NSPhotoLibraryUsageDescription": "Knot necesita acceso para subir fotos a tu perfil.",
+        "NSCameraUsageDescription": "Knot necesita la cámara para verificar tu identidad."
+      }
+    },
+    "android": {
+      "package": "app.knot.android",
+      "permissions": [
+        "RECORD_AUDIO",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-av",
+      "expo-secure-store",
+      "expo-notifications"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
