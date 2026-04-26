@@ -5,6 +5,7 @@ import { getStorage } from '../../shared/storage/index.js';
 import { ConflictError, NotFoundError, ValidationError } from '../../shared/errors.js';
 import { getVoiceQueue } from '../../shared/queue/index.js';
 import { VoicePromptsRepository, VoiceRecordingsRepository } from './repository.js';
+import { registerVoiceFeedRoutes } from './feed.js';
 
 const ListPromptsQuery = z.object({
   locale: z.enum(['es', 'en', 'pt-BR']).default('es'),
@@ -167,4 +168,7 @@ export async function voiceModule(app: FastifyInstance) {
     await recordings.archive(row.id);
     return { ok: true as const };
   });
+
+  // Feed + reply + match + saved
+  await registerVoiceFeedRoutes(app);
 }
