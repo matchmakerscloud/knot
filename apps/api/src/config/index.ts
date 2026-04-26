@@ -29,7 +29,7 @@ const envSchema = z.object({
   // Primary: Google Gemini. Alt: any OpenAI-compatible provider (OpenAI, Groq, Together, OpenRouter, Ollama, vLLM, ...).
   LLM_PROVIDER: z.enum(['gemini', 'openai-compat']).default('gemini'),
   GEMINI_API_KEY: z.string().optional(),
-  GEMINI_MODEL: z.string().default('gemini-2.0-flash-exp'),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
   LLM_OPENAI_BASE_URL: z.string().url().default('https://api.openai.com/v1'),
   LLM_OPENAI_API_KEY: z.string().optional(),
   LLM_OPENAI_MODEL: z.string().default('gpt-4o-mini'),
