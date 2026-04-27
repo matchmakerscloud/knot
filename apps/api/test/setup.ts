@@ -27,7 +27,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await sql`TRUNCATE knot_conversation_messages, knot_conversations, blocks, reports, photos, messages, chamber_participants, chambers, voice_replies, voice_feed_events, voice_fingerprints, voice_recordings, voice_prompts, auth_sessions, users, waitlist_signups RESTART IDENTITY CASCADE`;
+  await sql`TRUNCATE words_likes, words_responses, words_prompts, knot_conversation_messages, knot_conversations, blocks, reports, photos, messages, chamber_participants, chambers, voice_replies, voice_feed_events, voice_fingerprints, voice_recordings, voice_prompts, auth_sessions, users, waitlist_signups RESTART IDENTITY CASCADE`;
 });
 
 afterAll(async () => {

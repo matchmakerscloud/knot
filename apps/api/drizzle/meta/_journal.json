@@ -50,6 +50,13 @@
       "when": 1777248287161,
       "tag": "0006_wise_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777248716147,
+      "tag": "0007_wandering_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }

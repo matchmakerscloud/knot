@@ -8,3 +8,4 @@ export * from './chambers.js';
 export * from './photos.js';
 export * from './safety.js';
 export * from './knot-conversations.js';
+export * from './words.js';

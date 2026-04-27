@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { useAuthStore, type AuthUser } from '@/lib/auth-store';
 
 const TABS = [
+  { href: '/app/knot' as const, label: 'Knot', icon: '◍' },
   { href: '/app/voice' as const, label: 'Voice', icon: '◉' },
   { href: '/app/words' as const, label: 'Words', icon: '✎' },
   { href: '/app/match' as const, label: 'Match', icon: '◇' },
@@ -56,7 +57,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh pb-20">
       {children}
       <nav className="fixed inset-x-0 bottom-0 border-t border-border bg-bg/95 backdrop-blur">
-        <div className="mx-auto grid max-w-app grid-cols-4">
+        <div className="mx-auto grid max-w-app grid-cols-5">
           {TABS.map((t) => {
             const active = pathname === t.href || pathname.startsWith(t.href + '/');
             return (
