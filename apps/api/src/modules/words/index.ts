@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod';
 import { and, asc, desc, eq, ne, notInArray, sql } from 'drizzle-orm';
 import { db } from '../../shared/db/client.js';
 import { ConflictError, NotFoundError, ValidationError } from '../../shared/errors.js';
+import { classifyText } from '../../shared/moderation/index.js';
 import { wordsPrompts, wordsResponses, wordsLikes } from '../../shared/db/schema/words.js';
 import { users } from '../../shared/db/schema/users.js';
 import { chambers, chamberParticipants, messages } from '../../shared/db/schema/chambers.js';
@@ -53,16 +54,23 @@ export async function wordsModule(app: FastifyInstance) {
     const ex = await db.select().from(wordsResponses).where(and(eq(wordsResponses.userId, userId), eq(wordsResponses.position, body.position))).limit(1);
     if (ex.length > 0) throw new ConflictError('words.position_in_use', `Position ${body.position} already taken`);
 
+    // Moderation pre-publish (LLM classifier). Reject hard violations; mark dudosos as pending_review.
+    const mod = await classifyText(body.body);
+    const status = mod.verdict === 'reject' ? 'rejected' : mod.verdict === 'review' ? 'pending_review' : 'active';
+
     const [row] = await db.insert(wordsResponses).values({
       userId,
       promptId: body.promptId,
       promptTextSnapshot: prompt.text,
       body: body.body,
       position: body.position,
-      // Auto-active for MVP; future: pending_review with moderation classifier
-      status: 'active',
+      status,
+      ...(status === 'rejected' ? { rejectionReason: mod.reason ?? mod.categories.join(',') } : {}),
     }).returning();
     if (!row) throw new Error('words.response.insert.failed');
+    if (status === 'rejected') {
+      throw new ValidationError('words.response.rejected', mod.reason ?? 'Rejected by moderation', { categories: mod.categories });
+    }
 
     reply.code(201);
     return { id: row.id, status: row.status };

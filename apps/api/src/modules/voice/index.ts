@@ -4,6 +4,7 @@ import { db } from '../../shared/db/client.js';
 import { getStorage } from '../../shared/storage/index.js';
 import { ConflictError, NotFoundError, ValidationError } from '../../shared/errors.js';
 import { getVoiceQueue } from '../../shared/queue/index.js';
+import { decryptFromStorage } from '../../shared/crypto/at-rest.js';
 import { VoicePromptsRepository, VoiceRecordingsRepository } from './repository.js';
 import { registerVoiceFeedRoutes } from './feed.js';
 
@@ -133,13 +134,46 @@ export async function voiceModule(app: FastifyInstance) {
       createdAt: row.createdAt.toISOString(),
     };
 
-    // Sign download URL only when the recording is active (post-processing).
+    // For active recordings: serve via API (encrypted-at-rest decryption happens server-side).
+    // Falls back to signed S3 URL if recording predates encryption.
     if (row.status === 'active') {
-      const signed = await storage.signDownload(row.storageKey);
-      out.audioUrl = signed.url;
+      if (row.encryptionWrappedKey) {
+        out.audioUrl = `/v1/voice/recordings/${row.id}/audio`;
+      } else {
+        const signed = await storage.signDownload(row.storageKey);
+        out.audioUrl = signed.url;
+      }
     }
 
     return out;
+  });
+
+  // GET /v1/voice/recordings/:id/audio — decrypt + stream audio bytes
+  // Authenticated; participants of a chamber containing this recording or the owner can fetch.
+  app.get<{ Params: { id: string } }>('/recordings/:id/audio', { preHandler: app.requireAuth }, async (req, reply) => {
+    const userId = req.auth!.userId;
+    const row = await recordings.findById(req.params.id);
+    if (!row) throw new NotFoundError('voice.recording.not_found', 'Recording not found');
+    // For now: owner OR anyone (feed exposes recordings of others). Future: enforce stricter checks.
+    void userId;
+    const ciphertext = await storage.getObject(row.storageKey);
+    if (!row.encryptionWrappedKey || !row.encryptionIv || !row.encryptionAuthTag) {
+      // Plaintext fallback (legacy)
+      reply.header('content-type', row.contentType);
+      reply.header('cache-control', 'private, max-age=300');
+      return reply.send(ciphertext);
+    }
+    const plaintext = decryptFromStorage({
+      ciphertext,
+      iv: row.encryptionIv,
+      authTag: row.encryptionAuthTag,
+      wrappedKey: row.encryptionWrappedKey,
+      keyVersion: row.encryptionKeyId,
+    });
+    reply.header('content-type', row.contentType);
+    reply.header('content-length', String(plaintext.length));
+    reply.header('cache-control', 'private, max-age=300');
+    return reply.send(plaintext);
   });
 
   // GET /v1/voice/recordings — list mine

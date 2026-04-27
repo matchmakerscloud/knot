@@ -10,3 +10,4 @@ export * from './safety.js';
 export * from './knot-conversations.js';
 export * from './words.js';
 export * from './match.js';
+export * from './user-preferences.js';

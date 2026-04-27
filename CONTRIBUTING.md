@@ -76,6 +76,33 @@ Lee `CODE_OF_CONDUCT.md`. Resumen: respeto, buena fe, asumimos lo mejor del otro
 
 Mantenedores ganan derecho a merge en su área de expertise + voto doble en governance.
 
+### Mantenedores actuales
+
+- **Mario Feres** — fundador, mantenedor principal de todas las áreas. `@matchmakerscloud` en GitHub.
+  Email del proyecto: `hello@matchmakers.cloud` · Seguridad: `security@matchmakers.cloud`.
+
+(La lista crecerá conforme la comunidad aporte. Para postularte como maintainer, abre una issue con el label `maintainer-application` describiendo tus 30 créditos y áreas de expertise.)
+
+### Cómo claim a `good-first-issue`
+
+1. Filtra issues con [`good-first-issue`](https://github.com/matchmakerscloud/knot/labels/good-first-issue).
+2. Comenta `@knot claim` en la issue para reservarla — un mantenedor confirma asignación.
+3. Si no hay actividad en 7 días, otra persona puede tomarla.
+4. Una persona puede tener máximo 2 good-first-issues activas a la vez (para que no acaparen).
+5. Tu PR debe referenciar la issue (`Closes #N`).
+
+### Áreas de expertise que buscamos
+
+| Área | Skills | Issues abiertos |
+|---|---|---|
+| `area:voice` | Audio processing, ffmpeg, MediaRecorder, anti-catfish | #18, #19 |
+| `area:words` | Embeddings, semantic search, NLP | — |
+| `area:match` | LLM ops, prompt engineering, evals | (si abrimos) |
+| `area:safety` | Moderation, anti-fraud, abuse patterns | (si abrimos) |
+| `area:web` | Next.js 14, React, mobile-first PWA, accessibility | — |
+| `area:infra` | Postgres, Redis, BullMQ, S3, Docker, systemd | — |
+| `docs` | Translations (en, pt-BR, fr, de, ja...), tutorials | #20 (en+pt-BR shipped) |
+
 ## Cómo establecer foco de mes
 
 La fundación publica el primer lunes de cada mes el foco temático ("`#voice-feed-quality`", "`#match-empathy-eval`", etc.). Los créditos por contribuciones que avanzan el foco del mes valen 1.5×. Esto permite enfocar comunidad sin imponer.

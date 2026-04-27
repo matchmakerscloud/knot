@@ -51,6 +51,7 @@ export async function buildServer(): Promise<FastifyInstance> {
     limits: { fileSize: 10 * 1024 * 1024 },
   });
   await server.register(rateLimit, {
+    global: false, // we attach per-route configs explicitly via { config: { rateLimit: ... } }
     max: 100,
     timeWindow: '1 minute',
   });

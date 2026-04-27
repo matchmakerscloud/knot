@@ -3,6 +3,7 @@ import { db } from '../../shared/db/client.js';
 import { UsersRepository } from '../auth/repositories/users.repository.js';
 import { NotFoundError } from '../../shared/errors.js';
 import type { User } from '../../shared/db/schema/users.js';
+import { preferencesRoutes } from './preferences.js';
 
 function publicUser(u: User) {
   const { passwordHash, ...rest } = u;
@@ -28,4 +29,6 @@ export async function meModule(app: FastifyInstance) {
     if (!u) throw new NotFoundError('user.not_found', 'User no longer exists');
     return { user: publicUser(u) };
   });
+
+  await preferencesRoutes(app);
 }
