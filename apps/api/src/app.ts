@@ -18,6 +18,7 @@ import { photosModule, chamberPhotoUnlockRoutes } from './modules/photos/index.j
 import { safetyModule } from './modules/safety/index.js';
 import { knotModule } from './modules/knot/index.js';
 import { wordsModule } from './modules/words/index.js';
+import { matchModule } from './modules/match/index.js';
 import { adminModule } from './modules/admin/index.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
@@ -71,6 +72,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await server.register(safetyModule, { prefix: '/v1' });
   await server.register(knotModule, { prefix: '/v1/knot' });
   await server.register(wordsModule, { prefix: '/v1/words' });
+  await server.register(matchModule, { prefix: '/v1/match' });
   await server.register(adminModule, { prefix: '/v1/admin' });
 
   return server;
