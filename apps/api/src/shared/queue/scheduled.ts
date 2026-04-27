@@ -7,13 +7,14 @@ import { matchPresentations, matchProfiles } from '../db/schema/match.js';
 import { users } from '../db/schema/users.js';
 import { blocks } from '../db/schema/safety.js';
 import { createPresentation } from '../../modules/match/service.js';
+import { runDripSender } from './drip-sender.js';
 import { getQueueConnection } from './index.js';
 
 const log = pino({ name: 'knot-scheduled', level: process.env.LOG_LEVEL ?? 'info' });
 
 export const SCHEDULED_QUEUE = 'scheduled';
 
-export type ScheduledJobName = 'expire-voice-replies' | 'daily-match-presentations' | 'expire-words-likes';
+export type ScheduledJobName = 'expire-voice-replies' | 'daily-match-presentations' | 'expire-words-likes' | 'drip-sender';
 
 export function getScheduledQueue(connection: ConnectionOptions): Queue {
   return new Queue(SCHEDULED_QUEUE, { connection, defaultJobOptions: { removeOnComplete: { age: 86400, count: 100 }, removeOnFail: { age: 604800 } } });
@@ -30,6 +31,7 @@ export async function registerScheduledJobs(connection: ConnectionOptions): Prom
   await q.upsertJobScheduler('expire-voice-replies', { every: 6 * 60 * 60 * 1000 }, { name: 'expire-voice-replies' });
   await q.upsertJobScheduler('expire-words-likes', { every: 6 * 60 * 60 * 1000 }, { name: 'expire-words-likes' });
   await q.upsertJobScheduler('daily-match-presentations', { pattern: '0 14 * * *' }, { name: 'daily-match-presentations' });
+  await q.upsertJobScheduler('drip-sender', { every: 30 * 60 * 1000 }, { name: 'drip-sender' });
   log.info('scheduled jobs registered');
   await q.close();
 }
@@ -48,6 +50,8 @@ export function startScheduledWorker(connection: ConnectionOptions): Worker<unkn
           return expireWordsLikes();
         case 'daily-match-presentations':
           return dailyMatchPresentations();
+        case 'drip-sender':
+          return runDripSender();
         default:
           log.warn({ name: job.name }, 'scheduled.unknown_job');
           return;

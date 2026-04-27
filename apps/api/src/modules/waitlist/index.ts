@@ -4,8 +4,19 @@ import { z, ZodError } from 'zod';
 import { db } from '../../shared/db/client.js';
 import { getEmailService } from '../../shared/email/index.js';
 import { ValidationError, ConflictError, NotFoundError } from '../../shared/errors.js';
+import { eq } from 'drizzle-orm';
 import { WaitlistRepository } from './repository.js';
 import { buildWelcomeEmail, type WaitlistSource } from './templates.js';
+import { waitlistSignups } from '../../shared/db/schema/waitlist.js';
+import { buildDripContext, renderDripEmail } from '../../shared/email/drip-templates.js';
+import { verifyUnsubscribeToken } from '../../shared/queue/drip-sender.js';
+
+function unsubscribeTokenFor(signupId: string): string {
+  return createHash('sha256').update(`${signupId}:${process.env.ENCRYPTION_KEY}`).digest('hex').slice(0, 32);
+}
+void buildWelcomeEmail; // keep export usable by callers; deprecated in favor of drip
+type _ = WaitlistSource; // silence unused
+void {} as _ | undefined;
 
 const SourceSchema = z.enum(['umbrella', 'voice', 'words', 'match']);
 const LocaleSchema = z.enum(['es', 'en', 'pt-BR']).default('es');
@@ -71,22 +82,40 @@ export async function waitlistModule(app: FastifyInstance) {
       userAgent: req.headers['user-agent'] ?? null,
     });
 
-    const tmpl = buildWelcomeEmail({
-      email: row.email,
-      source: row.source as WaitlistSource,
-      confirmToken,
+    // Send the day-0 drip email (welcome + confirm). Subsequent emails are sent by the
+    // scheduled drip-sender job at days 2, 5, 10, 17, 30.
+    const ctx = buildDripContext({
       signupId: row.id,
+      email: row.email,
+      source: row.source as 'umbrella' | 'voice' | 'words' | 'match',
+      confirmToken,
+      unsubscribeToken: unsubscribeTokenFor(row.id),
     });
+    const rendered = renderDripEmail(0, ctx);
 
     try {
-      await email.send({ to: row.email, subject: tmpl.subject, html: tmpl.html, text: tmpl.text });
+      await email.send({ to: row.email, subject: rendered.subject, html: rendered.html, text: rendered.text });
+      await db.update(waitlistSignups).set({ dripStep: 1, dripLastSentAt: new Date() }).where(eq(waitlistSignups.id, row.id));
     } catch (err) {
       req.log.error({ err, signupId: row.id }, 'waitlist.email.send_failed');
-      // We do NOT throw — signup is persisted and we'll retry email later via worker.
+      // We do NOT throw — signup is persisted and the drip-sender job will retry.
     }
 
     reply.code(201);
     return { ok: true, signupId: row.id };
+  });
+
+  // GET /v1/waitlist/unsubscribe?id=...&t=...
+  app.get('/unsubscribe', async (req) => {
+    const q = parse(z.object({ id: z.string().uuid(), t: z.string().min(16).max(64) }), req.query);
+    if (!verifyUnsubscribeToken(q.id, q.t)) {
+      throw new NotFoundError('waitlist.unsubscribe.invalid', 'Invalid unsubscribe link');
+    }
+    await db
+      .update(waitlistSignups)
+      .set({ status: 'unsubscribed', unsubscribedAt: new Date(), updatedAt: new Date() })
+      .where(eq(waitlistSignups.id, q.id));
+    return { ok: true, status: 'unsubscribed' };
   });
 
   // GET /v1/waitlist/confirm?id=...&t=... — confirms email

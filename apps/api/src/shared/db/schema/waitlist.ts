@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, timestamp, pgEnum, index } from 'drizzle-orm/pg-core';
 
 export const waitlistSource = pgEnum('waitlist_source', ['umbrella', 'voice', 'words', 'match']);
 export const waitlistStatus = pgEnum('waitlist_status', ['pending', 'confirmed', 'invited', 'unsubscribed']);
@@ -16,6 +16,8 @@ export const waitlistSignups = pgTable(
     invitedAt: timestamp('invited_at', { withTimezone: true }),
     unsubscribedAt: timestamp('unsubscribed_at', { withTimezone: true }),
     referrer: text('referrer'),
+    dripStep: integer('drip_step').notNull().default(0),
+    dripLastSentAt: timestamp('drip_last_sent_at', { withTimezone: true }),
     utmSource: text('utm_source'),
     utmMedium: text('utm_medium'),
     utmCampaign: text('utm_campaign'),
