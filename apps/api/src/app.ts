@@ -14,6 +14,9 @@ import { waitlistModule } from './modules/waitlist/index.js';
 import { uploadsModule } from './modules/uploads/index.js';
 import { voiceModule } from './modules/voice/index.js';
 import { chambersModule } from './modules/chambers/index.js';
+import { photosModule, chamberPhotoUnlockRoutes } from './modules/photos/index.js';
+import { safetyModule } from './modules/safety/index.js';
+import { knotModule } from './modules/knot/index.js';
 import { adminModule } from './modules/admin/index.js';
 
 export async function buildServer(): Promise<FastifyInstance> {
@@ -62,6 +65,10 @@ export async function buildServer(): Promise<FastifyInstance> {
   await server.register(uploadsModule, { prefix: '/v1/uploads' });
   await server.register(voiceModule, { prefix: '/v1/voice' });
   await server.register(chambersModule, { prefix: '/v1/chambers' });
+  await server.register(chamberPhotoUnlockRoutes, { prefix: '/v1/chambers' });
+  await server.register(photosModule, { prefix: '/v1/me/photos' });
+  await server.register(safetyModule, { prefix: '/v1' });
+  await server.register(knotModule, { prefix: '/v1/knot' });
   await server.register(adminModule, { prefix: '/v1/admin' });
 
   return server;

@@ -5,10 +5,6 @@ export * from './voice.js';
 export * from './voice-fingerprints.js';
 export * from './voice-feed.js';
 export * from './chambers.js';
-// Add more schema exports as you build them:
-// export * from './photos.js';
-// export * from './voice-recordings.js';
-// export * from './words-responses.js';
-// export * from './match-profiles.js';
-// export * from './chambers.js';
-// export * from './messages.js';
+export * from './photos.js';
+export * from './safety.js';
+export * from './knot-conversations.js';

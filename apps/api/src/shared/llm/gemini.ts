@@ -72,8 +72,14 @@ function mapMessagesToGemini(messages: LLMMessage[]): {
   if (lastUserIdx === -1) {
     throw new Error('llm.gemini.no_user_message');
   }
-  const historyMessages = conversational.slice(0, lastUserIdx);
+  let historyMessages = conversational.slice(0, lastUserIdx);
   const lastUser = conversational[lastUserIdx]!;
+
+  // Gemini requires history[0] to have role 'user'. Drop any leading 'assistant'
+  // messages (e.g., Knot's opening greeting before the user has said anything).
+  while (historyMessages.length > 0 && historyMessages[0]!.role === 'assistant') {
+    historyMessages = historyMessages.slice(1);
+  }
 
   const history = historyMessages.map((m) => ({
     role: m.role === 'assistant' ? ('model' as const) : ('user' as const),
