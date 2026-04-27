@@ -48,6 +48,8 @@ const envSchema = z.object({
   // Email
   MAIL_BACKEND: z.enum(['smtp', 'console', 'resend']).default('console'),
   MAIL_FROM: z.string().default('Knot <hello@matchmakers.cloud>'),
+  MAIL_REPLY_TO: z.string().default('matchmakercloud@proton.me'),
+  MAIL_BCC_OPS: z.string().default(''),
   SMTP_HOST: z.string().default('localhost'),
   SMTP_PORT: z.coerce.number().default(1025),
   SMTP_SECURE: z
@@ -123,6 +125,8 @@ export const config = {
   mail: {
     backend: env.MAIL_BACKEND,
     from: env.MAIL_FROM,
+    replyTo: env.MAIL_REPLY_TO,
+    bccOps: env.MAIL_BCC_OPS ? env.MAIL_BCC_OPS.split(',').map((s) => s.trim()).filter(Boolean) : [],
     smtp: {
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,

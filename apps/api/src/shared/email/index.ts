@@ -6,6 +6,10 @@ export interface EmailMessage {
   subject: string;
   html: string;
   text?: string;
+  /** Override default reply-to for this message. */
+  replyTo?: string | undefined;
+  /** Operational BCC — internal copy for ops/audit. Defaults to config.mail.bccOps. */
+  bccOps?: boolean;
 }
 
 export interface EmailService {
@@ -40,9 +44,13 @@ class SmtpEmailService implements EmailService {
   }
 
   async send(msg: EmailMessage): Promise<{ id: string }> {
+    const replyTo = msg.replyTo ?? config.mail.replyTo;
+    const bcc = msg.bccOps !== false && config.mail.bccOps.length > 0 ? config.mail.bccOps : undefined;
     const info = await this.transporter.sendMail({
       from: config.mail.from,
       to: msg.to,
+      ...(replyTo ? { replyTo } : {}),
+      ...(bcc ? { bcc } : {}),
       subject: msg.subject,
       html: msg.html,
       text: msg.text ?? stripHtml(msg.html),
@@ -64,6 +72,12 @@ class ResendEmailService implements EmailService {
       body: JSON.stringify({
         from: config.mail.from,
         to: msg.to,
+        ...(msg.replyTo ?? config.mail.replyTo
+          ? { reply_to: msg.replyTo ?? config.mail.replyTo }
+          : {}),
+        ...(msg.bccOps !== false && config.mail.bccOps.length > 0
+          ? { bcc: config.mail.bccOps }
+          : {}),
         subject: msg.subject,
         html: msg.html,
         text: msg.text ?? stripHtml(msg.html),
